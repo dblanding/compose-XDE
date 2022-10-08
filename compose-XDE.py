@@ -11,15 +11,17 @@ https://www.youtube.com/playlist?list=PL_WFkJrQIY2iVVchOPhl77xl432jeNYfQ
 """
 
 from dataclasses import dataclass
-
+import math
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeCylinder
 from OCC.Core.gp import (
     gp_Ax2,
     gp_Pnt,
     gp_DX,
+    gp_DY,
     gp_Dir,
     gp_Trsf,
     gp_Vec,
+    gp_Quaternion,
     )
 from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDF import TDF_Label, TDF_LabelSequence, TDF_ChildIterator
@@ -101,7 +103,10 @@ def build_wheel_axle(wheel, axle, L):
     right_whl_loc = TopLoc_Location(wheelT_right)
 
     wheelT_left = gp_Trsf()
-    wheelT_left.SetTranslationPart(gp_Vec(-L/2, 0, 0))
+    qn = gp_Quaternion(gp_Vec(gp_DY()), math.pi)
+    R = gp_Trsf()
+    R.SetRotation(qn)
+    wheelT_left = wheelT_right.Inverted() * R
     left_whl_loc = TopLoc_Location(wheelT_left)
 
     # Copy shapes (moved by location vector), add to compound
@@ -161,7 +166,7 @@ TDataStd_Name.Set(axle_proto.label, TCollection_ExtendedString("axle"))
 TDataStd_Name.Set(wheel_axle_proto.label, TCollection_ExtendedString("wheel-axle"))
 TDataStd_Name.Set(chassis_proto.label, TCollection_ExtendedString("chassis"))
 
-# Assign names to the instances of wheel-axle (not directly accessible)
+# Assign names to the instances of wheel-axle (labels not directly accessible)
 itr = TDF_ChildIterator(chassis_proto.label, False)
 while itr.More():
     component_label = itr.Value()
