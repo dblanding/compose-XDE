@@ -38,6 +38,7 @@ from OCC.Core.TopoDS import (
     )
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.BinXCAFDrivers import binxcafdrivers_DefineFormat
+from OCC.Core.XmlXCAFDrivers import xmlxcafdrivers_DefineFormat
 from OCC.Core.PCDM import PCDM_SS_OK
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from OCC.Core.STEPCAFControl import STEPCAFControl_Writer
@@ -56,10 +57,11 @@ CL = 1000  # Chassis length
 
 
 # Stuff related to TDocStd_Document and STEP format
-doc = TDocStd_Document(TCollection_ExtendedString("BinXCAF"))
+doc = TDocStd_Document(TCollection_ExtendedString("XmlXCAF"))
 app = XCAFApp_Application_GetApplication()
-app.NewDocument(TCollection_ExtendedString("MDTV-XCAF"), doc)
-binxcafdrivers_DefineFormat(app)
+app.NewDocument(TCollection_ExtendedString("XmlXCAF"), doc)
+# binxcafdrivers_DefineFormat(app)
+xmlxcafdrivers_DefineFormat(app)
 ST = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
 CT = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
@@ -210,7 +212,7 @@ if __name__ == "__main__":
 
     chassis_proto, doc = create_chassis_doc()
 
-    save_file = "/home/doug/Desktop/doc.xbf"
+    save_file = "/home/doug/Desktop/doc.xml"
     save_doc(save_file, doc)
 
     step_file_name = "/home/doug/Desktop/chassis.stp"
