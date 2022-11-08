@@ -16,6 +16,7 @@ This document can be stored using one of two main storage formats:
 https://unlimited3d.wordpress.com/2021/09/08/xcaf-b-rep-changes-in-occt-7-6-0/
 """
 
+import os
 from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDocStd import TDocStd_Document
 from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
@@ -28,19 +29,42 @@ from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from OCC.Core.STEPCAFControl import STEPCAFControl_Writer
 from OCC.Core.IFSelect import IFSelect_RetDone
 
-# Create document to receive data from file
-doc = TDocStd_Document(TCollection_ExtendedString("XmlXCAF"))
+# Choose format for TDocStd_Document
+# format = "BinXCAF"  # Use file ext .bxf to save in binary format
+format = "XmlXCAF"  # Use file ext .xml to save in xml format
+doc = TDocStd_Document(TCollection_ExtendedString(format))
 app = XCAFApp_Application_GetApplication()
+app.NewDocument(TCollection_ExtendedString(format), doc)
 binxcafdrivers_DefineFormat(app)
 xmlxcafdrivers_DefineFormat(app)
-app.NewDocument(TCollection_ExtendedString("XmlXCAF"), doc)
 shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
 color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
 doc1 = doc
 
+def set_environ_vars():
+    """In OCCT, it is necessary to set a couple of environment variables
+    However, in pythonOCC I do not believe it is necessary."""
+
+    path = "/home/doug/OCC/opencascade-7.6.0/src/XmlXCAFDrivers"
+    os.environ['CSF_PluginDefaults'] = path
+    os.environ['CSF_XCAFDefaults'] = path
+
+def get_environ_vars():
+    """Print a couple of important environment variables
+    In OCCT, it is necessary to set a couple of environment variables
+    However, in pythonOCC I do not believe it is necessary."""
+
+    variables = ['CSF_PluginDefaults',
+                 'CSF_XCAFDefaults',
+                 'CASROOT',
+                 'USER',
+                 ]
+    for v in variables:
+        print(f"{v} : {os.getenv(v)}")
+
 def open_doc(fname):
-    """Open (.xbf) file, return doc"""
+    """Open (.xbf or .xml) file, return doc"""
 
     # Read file and transfer to doc
     read_status = app.Open(TCollection_ExtendedString(fname), doc)
@@ -67,6 +91,8 @@ def write_step(doc, step_file_name):
 
 
 if __name__ == "__main__":
+
+    set_environ_vars()
 
     step_file_name = "/home/doug/Desktop/save_chassis.stp"
     doc_file = "/home/doug/Desktop/doc.xml"
