@@ -34,9 +34,13 @@ from OCC.Core.IFSelect import IFSelect_RetDone
 format = "XmlXCAF"  # Use file ext .xml to save in xml format
 doc = TDocStd_Document(TCollection_ExtendedString(format))
 app = XCAFApp_Application_GetApplication()
-app.NewDocument(TCollection_ExtendedString(format), doc)
 binxcafdrivers_DefineFormat(app)
 xmlxcafdrivers_DefineFormat(app)
+app.NewDocument(TCollection_ExtendedString(format), doc)
+
+# Note that the method XCAFDoc_DocumentTool_ShapeTool returns
+# the XCAFDoc_ShapeTool. The first time this method is used,
+# it creates the XCAFDoc_ShapeTool.
 shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
 color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
@@ -62,6 +66,7 @@ def get_environ_vars():
                  ]
     for v in variables:
         print(f"{v} : {os.getenv(v)}")
+    print("")
 
 def open_doc(fname):
     """Open (.xbf or .xml) file, return doc"""
@@ -92,7 +97,7 @@ def write_step(doc, step_file_name):
 
 if __name__ == "__main__":
 
-    set_environ_vars()
+    # set_environ_vars()
 
     step_file_name = "/home/doug/Desktop/save_chassis.stp"
     doc_file = "/home/doug/Desktop/doc.xml"

@@ -70,6 +70,7 @@ def get_environ_vars():
                  ]
     for v in variables:
         print(f"{v} : {os.getenv(v)}")
+    print("")
 
 # Parameters
 OD = 500   # Wheel OD
@@ -78,15 +79,19 @@ D  = 50    # Axle diameter
 L  = 1000  # Axle length
 CL = 1000  # Chassis length
 
-
+# Initialize the document
 # Choose format for TDocStd_Document
 # format = "BinXCAF"  # Use file ext .bxf to save in binary format
 format = "XmlXCAF"  # Use file ext .xml to save in xml format
 doc = TDocStd_Document(TCollection_ExtendedString(format))
 app = XCAFApp_Application_GetApplication()
-app.NewDocument(TCollection_ExtendedString(format), doc)
 binxcafdrivers_DefineFormat(app)
 xmlxcafdrivers_DefineFormat(app)
+app.NewDocument(TCollection_ExtendedString(format), doc)
+
+# Note that the method XCAFDoc_DocumentTool_ShapeTool returns
+# the XCAFDoc_ShapeTool. The first time this method is used,
+# it creates the XCAFDoc_ShapeTool.
 ST = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
 CT = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
@@ -235,7 +240,7 @@ def save_doc(save_file, doc):
 if __name__ == "__main__":
     from OCC.Display.SimpleGui import init_display
 
-    set_environ_vars()
+    # set_environ_vars()
 
     # Create chassis and associated document
     chassis_proto, doc = create_chassis_doc()
