@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 """
-compose-XDE.py
+compose-_plus_root.py
 copyright 2022 Doug Blanding (dblanding@gmail.com)
+Same as compose-XDE.py except with the addition of a top level root.
 Converted to PythonOCC from the original C++ (OCCT) presented in the video tutorial:
 Lesson 15: Export OpenCascade assemblies to STEP with names and colors at:
 https://www.youtube.com/watch?v=dq2-evewPeA&list=PL_WFkJrQIY2iVVchOPhl77xl432jeNYfQ&index=7
@@ -161,11 +162,31 @@ def create_chassis_doc():
     chassis_proto = prototype(chassis_comp,
                               ST.AddShape(chassis_comp, True))
 
+    # Create root label
+    root_comp = TopoDS_Compound()
+    bbuilder = TopoDS_Builder()
+    bbuilder.MakeCompound(root_comp)
+    bbuilder.Add(root_comp, chassis_proto.shape)
+    root_proto = prototype(root_comp,
+                           ST.AddShape(root_comp, True))
+    TDataStd_Name.Set(root_proto.label, TCollection_ExtendedString("root"))
+
+
+
     # Assign names to each of the labels contained in prototypes
     TDataStd_Name.Set(wheel_proto.label, TCollection_ExtendedString("wheel"))
     TDataStd_Name.Set(axle_proto.label, TCollection_ExtendedString("axle"))
     TDataStd_Name.Set(wheel_axle_proto.label, TCollection_ExtendedString("wheel-axle"))
     TDataStd_Name.Set(chassis_proto.label, TCollection_ExtendedString("chassis"))
+
+    # Assign name to chassis instance
+    itr = TDF_ChildIterator(root_proto.label, False)
+    while itr.More():
+        component_label = itr.Value()
+        TDataStd_Name.Set(component_label,
+                          TCollection_ExtendedString("Chassis-1"))
+        itr.Next()
+
 
     # Assign names to the instances of wheel-axle (labels not directly accessible)
     itr = TDF_ChildIterator(chassis_proto.label, False)
@@ -241,7 +262,7 @@ if __name__ == "__main__":
     save_file = "/home/doug/Desktop/doc.xml"
     save_doc(save_file, doc)
 
-    step_file_name = "/home/doug/Desktop/chassis.stp"
+    step_file_name = "/home/doug/Desktop/chassis.step"
     write_step(doc, step_file_name)
 
     # Display results
