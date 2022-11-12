@@ -49,29 +49,6 @@ from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import topexp_MapShapes
 from OCC.Core.TopoDS import TopoDS_Face, topods_Face
 
-
-def set_environ_vars():
-    """In OCCT, it is necessary to set a couple of environment variables
-    However, in pythonOCC I do not believe it is necessary."""
-
-    path = "/home/doug/OCC/opencascade-7.6.0/src/XmlXCAFDrivers"
-    os.environ['CSF_PluginDefaults'] = path
-    os.environ['CSF_XCAFDefaults'] = path
-
-def get_environ_vars():
-    """Print a couple of important environment variables
-    In OCCT, it is necessary to set a couple of environment variables
-    However, in pythonOCC I do not believe it is necessary."""
-
-    variables = ['CSF_PluginDefaults',
-                 'CSF_XCAFDefaults',
-                 'CASROOT',
-                 'USER',
-                 ]
-    for v in variables:
-        print(f"{v} : {os.getenv(v)}")
-    print("")
-
 # Parameters
 OD = 500   # Wheel OD
 W  = 100   # Wheel width
@@ -240,8 +217,6 @@ def save_doc(save_file, doc):
 if __name__ == "__main__":
     from OCC.Display.SimpleGui import init_display
 
-    # set_environ_vars()
-
     # Create chassis and associated document
     chassis_proto, doc = create_chassis_doc()
 
@@ -251,9 +226,6 @@ if __name__ == "__main__":
 
     step_file_name = "/home/doug/Desktop/chassis.stp"
     write_step(doc, step_file_name)
-
-    # print environment variables
-    get_environ_vars()
 
     # Display results
     display, start_display, add_menu, add_function_to_menu = init_display()

@@ -46,28 +46,6 @@ color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
 doc1 = doc
 
-def set_environ_vars():
-    """In OCCT, it is necessary to set a couple of environment variables
-    However, in pythonOCC I do not believe it is necessary."""
-
-    path = "/home/doug/OCC/opencascade-7.6.0/src/XmlXCAFDrivers"
-    os.environ['CSF_PluginDefaults'] = path
-    os.environ['CSF_XCAFDefaults'] = path
-
-def get_environ_vars():
-    """Print a couple of important environment variables
-    In OCCT, it is necessary to set a couple of environment variables
-    However, in pythonOCC I do not believe it is necessary."""
-
-    variables = ['CSF_PluginDefaults',
-                 'CSF_XCAFDefaults',
-                 'CASROOT',
-                 'USER',
-                 ]
-    for v in variables:
-        print(f"{v} : {os.getenv(v)}")
-    print("")
-
 def open_doc(fname):
     """Open (.xbf or .xml) file, return doc"""
 
@@ -96,8 +74,6 @@ def write_step(doc, step_file_name):
 
 
 if __name__ == "__main__":
-
-    # set_environ_vars()
 
     step_file_name = "/home/doug/Desktop/save_chassis.stp"
     doc_file = "/home/doug/Desktop/doc.xml"
