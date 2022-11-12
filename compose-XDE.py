@@ -169,10 +169,26 @@ def create_chassis_doc():
 
     # Assign names to the instances of wheel-axle (labels not directly accessible)
     itr = TDF_ChildIterator(chassis_proto.label, False)
+    counter = 1
     while itr.More():
         component_label = itr.Value()
         TDataStd_Name.Set(component_label,
-                          TCollection_ExtendedString("wheel-axle-instance"))
+                          TCollection_ExtendedString(f"wheel-axle-{counter}"))
+        counter += 1
+        itr.Next()
+
+    # Assign names to the instances of wheel and axle (labels not directly accessible)
+    itr = TDF_ChildIterator(wheel_axle_proto.label, False)
+    counter = 1
+    while itr.More():
+        component_label = itr.Value()
+        if counter < 3:
+            name = f'wheel-{counter}'
+            counter += 1
+        else:
+            name = 'axle-1'
+        TDataStd_Name.Set(component_label,
+                          TCollection_ExtendedString(name))
         itr.Next()
 
     # Apply color to parts
@@ -189,6 +205,8 @@ def create_chassis_doc():
 
     # Apply color to front face (of wheel)
     CT.SetColor(wheel_face_proto.label, Quantity_Color(0, 0, 1, Quantity_TOC_RGB), XCAFDoc_ColorSurf)
+
+    # print(f"{wheel_proto.shape = }")  # wheel_proto.shape = <class 'TopoDS_Solid'>
 
     return chassis_proto, doc
 
