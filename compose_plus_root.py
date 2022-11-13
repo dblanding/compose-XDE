@@ -23,21 +23,21 @@ from OCC.Core.gp import (
     gp_Trsf,
     gp_Vec,
     gp_Quaternion,
-    )
+)
 from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDF import TDF_Label, TDF_ChildIterator
 from OCC.Core.TDataStd import TDataStd_Name
 from OCC.Core.TDocStd import TDocStd_Document
 from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
 from OCC.Core.XCAFDoc import (XCAFDoc_DocumentTool_ShapeTool,
-    XCAFDoc_ColorGen,
-    XCAFDoc_ColorSurf,
-    XCAFDoc_DocumentTool_ColorTool)
+                              XCAFDoc_ColorGen,
+                              XCAFDoc_ColorSurf,
+                              XCAFDoc_DocumentTool_ColorTool)
 from OCC.Core.TopoDS import (
     TopoDS_Shape,
     TopoDS_Builder,
     TopoDS_Compound,
-    )
+)
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.BinXCAFDrivers import binxcafdrivers_DefineFormat
 from OCC.Core.XmlXCAFDrivers import xmlxcafdrivers_DefineFormat
@@ -52,9 +52,9 @@ from OCC.Core.TopoDS import TopoDS_Face, topods_Face
 
 # Parameters
 OD = 500   # Wheel OD
-W  = 100   # Wheel width
-D  = 50    # Axle diameter
-L  = 1000  # Axle length
+W = 100   # Wheel width
+D = 50    # Axle diameter
+L = 1000  # Axle length
 CL = 1000  # Chassis length
 
 # Initialize the document
@@ -140,6 +140,7 @@ def build_chassis(wheel_axle, CL):
 
     return comp
 
+
 def create_chassis_doc():
     """Build a document of the chassis assembly using shape tool.
     Return top level assembly (for display) and doc.
@@ -153,18 +154,19 @@ def create_chassis_doc():
     """
 
     # Create wheel shape & label, store in prototype dataclass
-    wheel_origin = gp_Ax2( gp_Pnt(-W/2, 0, 0), gp_Dir(1.0, 0.0, 0.0))
+    wheel_origin = gp_Ax2(gp_Pnt(-W/2, 0, 0), gp_Dir(1.0, 0.0, 0.0))
     wheel = BRepPrimAPI_MakeCylinder(wheel_origin, OD/2, W).Shape()
     wheel_proto = prototype(wheel, ST.AddShape(wheel, False))
 
     # Create axle shape & label, store in prototype dataclass
-    axle_origin = gp_Ax2( gp_Pnt(-L/2, 0, 0), gp_Dir(1.0, 0.0, 0.0))
+    axle_origin = gp_Ax2(gp_Pnt(-L/2, 0, 0), gp_Dir(1.0, 0.0, 0.0))
     axle = BRepPrimAPI_MakeCylinder(axle_origin, D/2, L).Shape()
     axle_proto = prototype(axle, ST.AddShape(axle, False))
 
     # Create wheel_axle compound shape & label, store in prototype dataclass
     wheel_axle_comp = build_wheel_axle(wheel, axle, L)
-    wheel_axle_proto = prototype(wheel_axle_comp, ST.AddShape(wheel_axle_comp, True))
+    wheel_axle_proto = prototype(
+        wheel_axle_comp, ST.AddShape(wheel_axle_comp, True))
 
     # Create chassis compound shape & label, store in prototype dataclass
     chassis_comp = build_chassis(wheel_axle_proto.shape, CL)
@@ -180,24 +182,27 @@ def create_chassis_doc():
     # Assign names to each of the labels contained in prototypes
     TDataStd_Name.Set(wheel_proto.label, TCollection_ExtendedString("wheel"))
     TDataStd_Name.Set(axle_proto.label, TCollection_ExtendedString("axle"))
-    TDataStd_Name.Set(wheel_axle_proto.label, TCollection_ExtendedString("wheel-axle"))
-    TDataStd_Name.Set(chassis_proto.label, TCollection_ExtendedString("chassis"))
+    TDataStd_Name.Set(wheel_axle_proto.label,
+                      TCollection_ExtendedString("wheel-axle"))
+    TDataStd_Name.Set(chassis_proto.label,
+                      TCollection_ExtendedString("chassis"))
     TDataStd_Name.Set(root_proto.label, TCollection_ExtendedString("root"))
 
     # Assign name to chassis instance
     itr = TDF_ChildIterator(root_proto.label, False)
     while itr.More():
         component_label = itr.Value()
-        TDataStd_Name.Set(component_label, TCollection_ExtendedString("chassis-1"))
+        TDataStd_Name.Set(
+            component_label, TCollection_ExtendedString("chassis-1"))
         itr.Next()
-
 
     # Assign names to the instances of wheel-axle (labels not directly accessible)
     itr = TDF_ChildIterator(chassis_proto.label, False)
     counter = 1
     while itr.More():
         component_label = itr.Value()
-        TDataStd_Name.Set(component_label, TCollection_ExtendedString(f"wheel-axle-{counter}"))
+        TDataStd_Name.Set(component_label, TCollection_ExtendedString(
+            f"wheel-axle-{counter}"))
         counter += 1
         itr.Next()
 
@@ -215,8 +220,10 @@ def create_chassis_doc():
         itr.Next()
 
     # Apply color to parts
-    CT.SetColor(wheel_proto.label, Quantity_Color(1, 0, 0, Quantity_TOC_RGB), XCAFDoc_ColorGen)
-    CT.SetColor(axle_proto.label, Quantity_Color(0, 1, 0, Quantity_TOC_RGB), XCAFDoc_ColorGen)
+    CT.SetColor(wheel_proto.label, Quantity_Color(
+        1, 0, 0, Quantity_TOC_RGB), XCAFDoc_ColorGen)
+    CT.SetColor(axle_proto.label, Quantity_Color(
+        0, 1, 0, Quantity_TOC_RGB), XCAFDoc_ColorGen)
 
     # Find the front face of the wheel
     all_wheel_faces = TopTools_IndexedMapOfShape()
@@ -224,7 +231,8 @@ def create_chassis_doc():
     front_face = topods_Face(all_wheel_faces(2))
 
     # Create the dataclass object for holding the face and label
-    wheel_face_proto = face_prototype(front_face, ST.AddSubShape(wheel_proto.label, front_face))
+    wheel_face_proto = face_prototype(
+        front_face, ST.AddSubShape(wheel_proto.label, front_face))
 
     # Apply color to front face (of wheel)
     CT.SetColor(wheel_face_proto.label,
@@ -232,6 +240,7 @@ def create_chassis_doc():
                 XCAFDoc_ColorSurf)
 
     return chassis_proto, doc
+
 
 def write_step(doc, step_file_name):
     # initialize STEP exporter
@@ -242,6 +251,7 @@ def write_step(doc, step_file_name):
     status = step_writer.Write(step_file_name)
     if status == IFSelect_RetDone:
         print(f"STEP file saved to {step_file_name}\n")
+
 
 def save_doc(save_file, doc):
     """Save the document"""
