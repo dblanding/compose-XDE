@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 """
-compose_plus_root.py
+compose-XDE.py
 copyright 2022 Doug Blanding (dblanding@gmail.com)
-Same as compose-XDE.py except with the addition of a top level root.
 Converted to PythonOCC from the original C++ (OCCT) presented in the video tutorial:
 Lesson 15: Export OpenCascade assemblies to STEP with names and colors at:
 https://www.youtube.com/watch?v=dq2-evewPeA&list=PL_WFkJrQIY2iVVchOPhl77xl432jeNYfQ&index=7
@@ -59,13 +58,13 @@ CL = 1000  # Chassis length
 
 # Initialize the document
 # Choose format for TDocStd_Document
-# format = "BinXCAF"  # Use file ext .xbf to save in binary format
-format = "XmlXCAF"  # Use file ext .xml to save in xml format
-doc = TDocStd_Document(TCollection_ExtendedString(format))
+# doc_format = "BinXCAF"  # Use file ext .bxf to save in binary format
+doc_format = "XmlXCAF"  # Use file ext .xml to save in xml format
+doc = TDocStd_Document(TCollection_ExtendedString(doc_format))
 app = XCAFApp_Application_GetApplication()
 binxcafdrivers_DefineFormat(app)
 xmlxcafdrivers_DefineFormat(app)
-app.NewDocument(TCollection_ExtendedString(format), doc)
+app.NewDocument(TCollection_ExtendedString(doc_format), doc)
 
 # Note that the method XCAFDoc_DocumentTool_ShapeTool returns
 # the XCAFDoc_ShapeTool. The first time this method is used,
@@ -75,7 +74,7 @@ CT = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
 
 # Define dataclass (Python equivalent of a C struct)
-# Instantiate: foo_proto = prototype(shape, label)
+# Initialize: foo_proto = prototype(shape, label)
 # Retrieve: foo_proto.shape  or  foo_proto.label
 @dataclass
 class prototype:
@@ -87,7 +86,6 @@ class prototype:
 @dataclass
 class face_prototype:
     """A face and its associated label"""
-
     face: TopoDS_Face
     label: TDF_Label
 
@@ -120,7 +118,6 @@ def build_wheel_axle(wheel, axle, L):
 
 def build_chassis(wheel_axle, CL):
     """Build and return a compound chassis shape from wheel_axle (x2)."""
-
     comp = TopoDS_Compound()
     bbuilder = TopoDS_Builder()
     bbuilder.MakeCompound(comp)
@@ -142,42 +139,28 @@ def build_chassis(wheel_axle, CL):
 
 
 def create_chassis_doc():
-    """Build a document of the chassis assembly using shape tool.
-    Return top level assembly (for display) and doc.
-
-    Below are some observations about how it works to build a doc:
-
-    ST, used repeatedly, is used **last** to create the root label.
-    Yet, the root label has the lowest entry in the doc.
-    So it looks like ST takes care of all the details if the user
-    decides to insert a top level label into an existing document.
-    """
 
     # Create wheel shape & label, store in prototype dataclass
     wheel_origin = gp_Ax2(gp_Pnt(-W/2, 0, 0), gp_Dir(1.0, 0.0, 0.0))
     wheel = BRepPrimAPI_MakeCylinder(wheel_origin, OD/2, W).Shape()
-    wheel_proto = prototype(wheel, ST.AddShape(wheel, False))
+    wheel_proto = prototype(wheel,
+                            ST.AddShape(wheel, False))
 
     # Create axle shape & label, store in prototype dataclass
     axle_origin = gp_Ax2(gp_Pnt(-L/2, 0, 0), gp_Dir(1.0, 0.0, 0.0))
     axle = BRepPrimAPI_MakeCylinder(axle_origin, D/2, L).Shape()
-    axle_proto = prototype(axle, ST.AddShape(axle, False))
+    axle_proto = prototype(axle,
+                           ST.AddShape(axle, False))
 
     # Create wheel_axle compound shape & label, store in prototype dataclass
     wheel_axle_comp = build_wheel_axle(wheel, axle, L)
-    wheel_axle_proto = prototype(
-        wheel_axle_comp, ST.AddShape(wheel_axle_comp, True))
+    wheel_axle_proto = prototype(wheel_axle_comp,
+                                 ST.AddShape(wheel_axle_comp, True))
 
     # Create chassis compound shape & label, store in prototype dataclass
     chassis_comp = build_chassis(wheel_axle_proto.shape, CL)
-    chassis_proto = prototype(chassis_comp, ST.AddShape(chassis_comp, True))
-
-    # Create root compound shape & label, store in prototype dataclass
-    root_comp = TopoDS_Compound()
-    bbuilder = TopoDS_Builder()
-    bbuilder.MakeCompound(root_comp)
-    bbuilder.Add(root_comp, chassis_proto.shape)
-    root_proto = prototype(root_comp, ST.AddShape(root_comp, True))
+    chassis_proto = prototype(chassis_comp,
+                              ST.AddShape(chassis_comp, True))
 
     # Assign names to each of the labels contained in prototypes
     TDataStd_Name.Set(wheel_proto.label, TCollection_ExtendedString("wheel"))
@@ -186,23 +169,14 @@ def create_chassis_doc():
                       TCollection_ExtendedString("wheel-axle"))
     TDataStd_Name.Set(chassis_proto.label,
                       TCollection_ExtendedString("chassis"))
-    TDataStd_Name.Set(root_proto.label, TCollection_ExtendedString("root"))
-
-    # Assign name to chassis instance
-    itr = TDF_ChildIterator(root_proto.label, False)
-    while itr.More():
-        component_label = itr.Value()
-        TDataStd_Name.Set(
-            component_label, TCollection_ExtendedString("chassis-1"))
-        itr.Next()
 
     # Assign names to the instances of wheel-axle (labels not directly accessible)
     itr = TDF_ChildIterator(chassis_proto.label, False)
     counter = 1
     while itr.More():
         component_label = itr.Value()
-        TDataStd_Name.Set(component_label, TCollection_ExtendedString(
-            f"wheel-axle-{counter}"))
+        TDataStd_Name.Set(component_label,
+                          TCollection_ExtendedString(f"wheel-axle-{counter}"))
         counter += 1
         itr.Next()
 
@@ -216,7 +190,8 @@ def create_chassis_doc():
             counter += 1
         else:
             name = 'axle-1'
-        TDataStd_Name.Set(component_label, TCollection_ExtendedString(name))
+        TDataStd_Name.Set(component_label,
+                          TCollection_ExtendedString(name))
         itr.Next()
 
     # Apply color to parts
@@ -225,19 +200,20 @@ def create_chassis_doc():
     CT.SetColor(axle_proto.label, Quantity_Color(
         0, 1, 0, Quantity_TOC_RGB), XCAFDoc_ColorGen)
 
-    # Find the front face of the wheel
+    # find the front face of the wheel
     all_wheel_faces = TopTools_IndexedMapOfShape()
     topexp_MapShapes(wheel_proto.shape, TopAbs_FACE, all_wheel_faces)
     front_face = topods_Face(all_wheel_faces(2))
 
-    # Create the dataclass object for holding the face and label
+    # create the dataclass object for holding the face and label
     wheel_face_proto = face_prototype(
         front_face, ST.AddSubShape(wheel_proto.label, front_face))
 
     # Apply color to front face (of wheel)
-    CT.SetColor(wheel_face_proto.label,
-                Quantity_Color(0, 0, 1, Quantity_TOC_RGB),
-                XCAFDoc_ColorSurf)
+    CT.SetColor(wheel_face_proto.label, Quantity_Color(
+        0, 0, 1, Quantity_TOC_RGB), XCAFDoc_ColorSurf)
+
+    # print(f"{wheel_proto.shape = }")  # wheel_proto.shape = <class 'TopoDS_Solid'>
 
     return chassis_proto, doc
 
@@ -271,10 +247,10 @@ if __name__ == "__main__":
     chassis_proto, doc = create_chassis_doc()
 
     # Depending on
-    save_file = "/home/doug/Desktop/doc.xml"
+    save_file = "/home/doug/Desktop/step/doc.xml"
     save_doc(save_file, doc)
 
-    step_file_name = "/home/doug/Desktop/chassis.step"
+    step_file_name = "/home/doug/Desktop/step/chassis.stp"
     write_step(doc, step_file_name)
 
     # Display results

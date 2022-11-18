@@ -135,7 +135,7 @@ if __name__ == "__main__":
     set_label_name(root_proto.label, "Top")
 
     # Read a step file
-    file_name = "step/as1-oc-214.stp"
+    file_name = "../step/as1-oc-214.stp"
     f_name, step_doc, step_app = _load_step(file_name)
     print(f"Opened {f_name}")
 
@@ -165,10 +165,10 @@ if __name__ == "__main__":
     shape_tool.UpdateAssemblies()
 
     # Save composite step file
-    save_file_name = "/home/doug/Desktop/under-top.stp"
+    save_file_name = "/home/doug/Desktop/step/under-top.stp"
     save_step_doc(doc, save_file_name)
 
     # Save composite xml file
-    save_file_name = "/home/doug/Desktop/under-top.xml"
+    save_file_name = "/home/doug/Desktop/step/under-top.xml"
     save_doc(doc, app, save_file_name)
 

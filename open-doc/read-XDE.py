@@ -30,13 +30,13 @@ from OCC.Core.STEPCAFControl import STEPCAFControl_Writer
 from OCC.Core.IFSelect import IFSelect_RetDone
 
 # Choose format for TDocStd_Document
-# format = "BinXCAF"  # Use file ext .bxf to save in binary format
-format = "XmlXCAF"  # Use file ext .xml to save in xml format
-doc = TDocStd_Document(TCollection_ExtendedString(format))
+# doc_format = "BinXCAF"  # Use file ext .xbf to save in binary format
+doc_format = "XmlXCAF"  # Use file ext .xml to save in xml format
+doc = TDocStd_Document(TCollection_ExtendedString(doc_format))
 app = XCAFApp_Application_GetApplication()
 binxcafdrivers_DefineFormat(app)
 xmlxcafdrivers_DefineFormat(app)
-app.NewDocument(TCollection_ExtendedString(format), doc)
+app.NewDocument(TCollection_ExtendedString(doc_format), doc)
 
 # Note that the method XCAFDoc_DocumentTool_ShapeTool returns
 # the XCAFDoc_ShapeTool. The first time this method is used,
@@ -75,8 +75,8 @@ def write_step(doc, step_file_name):
 
 if __name__ == "__main__":
 
-    step_file_name = "/home/doug/Desktop/save_chassis.stp"
-    doc_file = "/home/doug/Desktop/doc.xml"
+    step_file_name = "/home/doug/Desktop/save/save_chassis.stp"
+    doc_file = "/home/doug/Desktop/save/doc.xml"
     doc = open_doc(doc_file)
     write_step(doc, step_file_name)
     if doc1 is doc:
