@@ -21,5 +21,5 @@
     * Reload the step file and replace the defective document with the newly generated one.
 * My suspicion is that there is an error in the way my code works.
 * I believe the OpenCascade C++ communitiy is larger and more active than the PyOCC community, so I may be more likely to discover the problem if I post the question to a C++ forum.
-* Therefore, my next step is to write the equivalent C++ code.
+* The equivalent C++ code, included here for reference, produces pretty much the same results.
 
