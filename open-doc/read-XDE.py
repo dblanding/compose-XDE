@@ -1,83 +1,71 @@
 #!/usr/bin/env python
 
 """
-open_file.py
+File: read-XDE.py
 copyright 2022 Doug Blanding (dblanding@gmail.com)
-The goal of this file is to read the XDE data from the files written by compose-XDE.py
-Two files were written: doc.xbf and chassis.stp
-Lesson 15: Export OpenCascade assemblies to STEP with names and colors at:
-https://www.youtube.com/watch?v=dq2-evewPeA&list=PL_WFkJrQIY2iVVchOPhl77xl432jeNYfQ&index=7
-This video is one in a series of Open Cascade Lessons at Quaoar's Workshop:
-https://www.youtube.com/playlist?list=PL_WFkJrQIY2iVVchOPhl77xl432jeNYfQ
+The goal of this file is to read a document stored in .xbf format
+then save the document in Step format.
+I can't get this working in python, although the C++ code works fine.
 
-This document can be stored using one of two main storage formats:
-  1. binary version BinXCAF producing .xbf files
-  2. XmlXCAF producing .xml files.
-https://unlimited3d.wordpress.com/2021/09/08/xcaf-b-rep-changes-in-occt-7-6-0/
+The failure is at the very last line:
+RuntimeError: Standard_Failure cannot close a document that has not
+been opened raised from method Close of class TDocStd_Application
 """
 
-import os
 from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDocStd import TDocStd_Document
 from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
-from OCC.Core.XCAFDoc import (XCAFDoc_DocumentTool_ShapeTool,
-                              XCAFDoc_DocumentTool_ColorTool)
 from OCC.Core.BinXCAFDrivers import binxcafdrivers_DefineFormat
-from OCC.Core.XmlXCAFDrivers import xmlxcafdrivers_DefineFormat
-from OCC.Core.PCDM import PCDM_RS_OK
-from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
-from OCC.Core.STEPCAFControl import STEPCAFControl_Writer
 from OCC.Core.IFSelect import IFSelect_RetDone
+from OCC.Core.STEPCAFControl import STEPCAFControl_Writer
+from OCC.Core.STEPControl import STEPControl_AsIs
+from OCC.Core.XSControl import XSControl_WorkSession
 
-# Choose format for TDocStd_Document
-# doc_format = "BinXCAF"  # Use file ext .xbf to save in binary format
-doc_format = "XmlXCAF"  # Use file ext .xml to save in xml format
-doc = TDocStd_Document(TCollection_ExtendedString(doc_format))
-app = XCAFApp_Application_GetApplication()
-binxcafdrivers_DefineFormat(app)
-xmlxcafdrivers_DefineFormat(app)
-app.NewDocument(TCollection_ExtendedString(doc_format), doc)
+def create_doc():
+    """Create (and return) XCAF doc and app
 
-# Note that the method XCAFDoc_DocumentTool_ShapeTool returns
-# the XCAFDoc_ShapeTool. The first time this method is used,
-# it creates the XCAFDoc_ShapeTool.
-shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
-color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
+    entry       label <class 'OCC.Core.TDF.TDF_Label'>
+    0:1         doc.Main()                          (Depth = 1)
+    0:1:1       shape_tool is at this label entry   (Depth = 2)
+    0:1:2       color_tool at this entry            (Depth = 2)
+    0:1:1:1     root_label and all referred shapes  (Depth = 3)
+    0:1:1:x:x   component labels (references)       (Depth = 4)
+    """
 
-doc1 = doc
-
-def open_doc(fname):
-    """Open (.xbf or .xml) file, return doc"""
-
-    # Read file and transfer to doc
-    read_status = app.Open(TCollection_ExtendedString(fname), doc)
-    shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
-    shape_tool.UpdateAssemblies()
-    if read_status == PCDM_RS_OK:
-        print("File opened successfully.")
-    else:
-        print("Unable to open file.")
-
-    return doc
-
-
-def write_step(doc, step_file_name):
-    # initialize STEP exporter
-    step_writer = STEPCAFControl_Writer()
-    # transfer shapes and write file
-    step_writer.Transfer(doc)
-    status = step_writer.Write(step_file_name)
-    if status == IFSelect_RetDone:
-        print(f"STEP file saved to {step_file_name}\n")
-    else:
-        print(f"write_step {status = }")
+    # Initialize the document
+    # Choose format for TDocStd_Document
+    doc_format = "BinXCAF"  # Use file ext .xbf to save in binary format
+    # doc_format = "XmlXCAF"  # Use file ext .xml to save in xml format
+    doc = TDocStd_Document(TCollection_ExtendedString(doc_format))
+    app = XCAFApp_Application_GetApplication()
+    app.NewDocument(TCollection_ExtendedString(doc_format), doc)
+    binxcafdrivers_DefineFormat(app)
+    # xmlxcafdrivers_DefineFormat(app)
+    return doc, app
 
 
 if __name__ == "__main__":
 
-    step_file_name = "/home/doug/Desktop/save/save_chassis.stp"
-    doc_file = "/home/doug/Desktop/save/doc.xml"
-    doc = open_doc(doc_file)
-    write_step(doc, step_file_name)
-    if doc1 is doc:
-        print("doc was unchanged by app.open()")
+    doc_file = "../models/as1-oc-214.xbf"
+    step_file_name = "/home/doug/Desktop/test-open-doc.stp"
+
+    doc, app = create_doc()
+
+    # Read doc from .xbf file
+    app.Open(TCollection_ExtendedString(doc_file), doc)
+
+    # Initialize STEP exporter
+    WS = XSControl_WorkSession()
+    step_writer = STEPCAFControl_Writer(WS, False)
+
+    # Transfer shapes
+    step_writer.Transfer(doc, STEPControl_AsIs)
+
+    # Write step file
+    write_status = step_writer.Write(step_file_name)
+    if write_status == IFSelect_RetDone:
+        print(f"STEP file saved to {step_file_name}\n")
+    else:
+        print(f"Save step file failed. {write_status = }")
+
+    app.Close(doc)
