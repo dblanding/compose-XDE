@@ -274,7 +274,7 @@ if __name__ == "__main__":
     save_file = "/home/doug/Desktop/step/doc.xml"
     save_doc(save_file, doc)
 
-    step_file_name = "/home/doug/Desktop/step/chassis.step"
+    step_file_name = "/home/doug/Desktop/step/chassis-plus-root.step"
     write_step(doc, step_file_name)
 
     # Display results
