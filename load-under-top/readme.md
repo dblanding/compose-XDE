@@ -23,3 +23,13 @@
 * I believe the OpenCascade C++ communitiy is larger and more active than the PyOCC community, so I may be more likely to discover the problem if I post the question to a C++ forum.
 * The equivalent C++ code, included here for reference, produces pretty much the same results.
 
+## Resolved problem causing name errors in saved step file
+
+* I discovered how to avoid the name errors in the step file
+    * See file `load_step_under_top_fixed.py`
+    * Note 2 name errors (2nd and 4th lines) that don't occur and thus don't need to be fixed.
+* However, there is no improvement in the .xml file...
+
+![step file in CAD Assistant](imgs/stp-under-top-fixed-ca.png)
+![doc file in CAD Assistant](imgs/doc-under-top-fixed-ca.png)
+
