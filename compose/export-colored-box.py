@@ -13,11 +13,15 @@ from OCC.Core.STEPCAFControl import (
     STEPCAFControl_Writer,
 )
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.BRepFilletAPI import BRepFilletAPI_MakeFillet
 from OCC.Core.STEPControl import STEPControl_AsIs
 from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDataStd import TDataStd_Name
 from OCC.Core.TDF import TDF_Label, TDF_LabelSequence, TDF_ChildIterator
 from OCC.Core.TDocStd import TDocStd_Document, TDocStd_XLinkTool
+from OCC.Core.TopAbs import TopAbs_EDGE
+from OCC.Core.TopoDS import topods, TopoDS_Edge, TopoDS_Compound
+from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
 from OCC.Core.XCAFDoc import (
@@ -79,10 +83,24 @@ if __name__ == "__main__":
     shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
     color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
-    cube = BRepPrimAPI_MakeBox(5, 5, 5).Shape()
-    part_label = shape_tool.NewShape()
-    shape_tool.SetShape(part_label, cube)
+    # Create cube
+    S = 5.0
+    cube = BRepPrimAPI_MakeBox(S, S, S)
 
+    # Add fillets to all edges
+    mkFillet = BRepFilletAPI_MakeFillet(cube.Shape())
+    anEdgeExplorer = TopExp_Explorer(cube.Shape(), TopAbs_EDGE)
+    while anEdgeExplorer.More():
+        anEdge = topods.Edge(anEdgeExplorer.Current())
+        mkFillet.Add(S / 12.0, anEdge)
+        anEdgeExplorer.Next()
+    filleted_cube = mkFillet.Shape()
+
+    # Add finished cube to doc
+    part_label = shape_tool.NewShape()
+    shape_tool.SetShape(part_label, filleted_cube)
+
+    # Set name and color
     TDataStd_Name.Set(part_label, TCollection_ExtendedString("RedBox"))
     color = Quantity_Color(1, 0, 0, Quantity_TOC_RGB)
     color_tool.SetColor(part_label, color, XCAFDoc_ColorGen)
