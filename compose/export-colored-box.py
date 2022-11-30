@@ -4,11 +4,6 @@ How to export colored STEP file in OpenCASCADE
 https://techoverflow.net/2019/06/14/how-to-export-colored-step-files-in-opencascade/
 """
 
-from dataclasses import dataclass
-import logging
-import os
-import os.path
-
 from OCC.Core.BinXCAFDrivers import binxcafdrivers_DefineFormat
 from OCC.Core.XmlXCAFDrivers import xmlxcafdrivers_DefineFormat
 from OCC.Core.IFSelect import IFSelect_RetDone
@@ -32,6 +27,7 @@ from OCC.Core.XCAFDoc import (
 )
 from OCC.Core.XSControl import XSControl_WorkSession
 
+
 def create_doc():
     """Create and return XCAF doc and app
 
@@ -43,12 +39,13 @@ def create_doc():
     0:1:1:x:x   component labels (references)       (Depth = 4)
     """
 
-    doc = TDocStd_Document(TCollection_ExtendedString("red_box"))
+    doc = TDocStd_Document(TCollection_ExtendedString("XmlXCAF"))
     app = XCAFApp_Application_GetApplication()
-    app.NewDocument(TCollection_ExtendedString("MDTV-XCAF"), doc)
+    app.NewDocument(TCollection_ExtendedString("XmlXCAF"), doc)
     binxcafdrivers_DefineFormat(app)
     xmlxcafdrivers_DefineFormat(app)
     return doc, app
+
 
 def save_step_doc(doc, save_file_name):
     """Export doc to STEP file."""
@@ -65,19 +62,33 @@ def save_step_doc(doc, save_file_name):
     assert status == IFSelect_RetDone
 
 
+def save_doc(save_file, doc):
+    """Save the document"""
+    filename = TCollection_ExtendedString(save_file)
+    sstatus = app.SaveAs(doc, filename)
+    print(f"{sstatus=}")
+    print(f"{PCDM_SS_OK=}")
+    if sstatus == PCDM_SS_OK:
+        print(f"Document saved to {save_file}\n")
+
+
 if __name__ == "__main__":
 
-    # Create main document
+    # Create document
     doc, app = create_doc()
     shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
     color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
     cube = BRepPrimAPI_MakeBox(5, 5, 5).Shape()
-    print(cube)
     part_label = shape_tool.NewShape()
     shape_tool.SetShape(part_label, cube)
+
+    TDataStd_Name.Set(part_label, TCollection_ExtendedString("RedBox"))
     color = Quantity_Color(1, 0, 0, Quantity_TOC_RGB)
     color_tool.SetColor(part_label, color, XCAFDoc_ColorGen)
 
-    save_file_name = "/home/doug/Desktop/step/redbox.stp"
-    save_step_doc(doc, save_file_name)
+    save_step_file_name = "/home/doug/Desktop/step/redbox.stp"
+    save_step_doc(doc, save_step_file_name)
+
+    save_file = "/home/doug/Desktop/step/redbox.xml"
+    save_doc(save_file, doc)
