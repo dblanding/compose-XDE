@@ -13,6 +13,7 @@ from OCC.Core.STEPCAFControl import (
     STEPCAFControl_Writer,
 )
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.BRep import BRep_Builder
 from OCC.Core.BRepFilletAPI import BRepFilletAPI_MakeFillet
 from OCC.Core.STEPControl import STEPControl_AsIs
 from OCC.Core.TCollection import TCollection_ExtendedString
@@ -83,27 +84,36 @@ if __name__ == "__main__":
     shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
     color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
-    # Create cube
+    # Create root shape and label
+    root_label = shape_tool.NewShape()
+    root_shape = shape_tool.GetShape(root_label)
+    TDataStd_Name.Set(root_label, TCollection_ExtendedString("Root"))
+    # Create cube_shape
     S = 5.0
-    cube = BRepPrimAPI_MakeBox(S, S, S)
+    box = BRepPrimAPI_MakeBox(S, S, S)
 
     # Add fillets to all edges
-    mkFillet = BRepFilletAPI_MakeFillet(cube.Shape())
-    anEdgeExplorer = TopExp_Explorer(cube.Shape(), TopAbs_EDGE)
+    mkFillet = BRepFilletAPI_MakeFillet(box.Shape())
+    anEdgeExplorer = TopExp_Explorer(box.Shape(), TopAbs_EDGE)
     while anEdgeExplorer.More():
         anEdge = topods.Edge(anEdgeExplorer.Current())
         mkFillet.Add(S / 12.0, anEdge)
         anEdgeExplorer.Next()
-    filleted_cube = mkFillet.Shape()
+    cube_shape = mkFillet.Shape()
 
-    # Add finished cube to doc
-    part_label = shape_tool.NewShape()
-    shape_tool.SetShape(part_label, filleted_cube)
+    # Add finished cube_shape to doc
+    builder = BRep_Builder()
+    builder.MakeCompound(root_shape)
+    builder.Add(root_shape, cube_shape)
+    shape_tool.AddShape(cube_shape, False)
+    cube_label = TDF_Label()
+    if shape_tool.FindShape(cube_shape, cube_label):
+        print("Found cube_label")
 
     # Set name and color
-    TDataStd_Name.Set(part_label, TCollection_ExtendedString("RedBox"))
+    TDataStd_Name.Set(cube_label, TCollection_ExtendedString("cube_shape"))
     color = Quantity_Color(1, 0, 0, Quantity_TOC_RGB)
-    color_tool.SetColor(part_label, color, XCAFDoc_ColorGen)
+    color_tool.SetColor(cube_label, color, XCAFDoc_ColorGen)
 
     save_step_file_name = "/home/doug/Desktop/step/redbox.stp"
     save_step_doc(doc, save_step_file_name)
