@@ -247,7 +247,7 @@ if __name__ == "__main__":
     chassis_proto, doc = create_chassis_doc()
 
     # Save doc in .xml format
-    save_file = "/home/doug/Desktop/step/doc.xml"
+    save_file = "/home/doug/Desktop/step/chassis.xml"
     save_doc(save_file, doc)
 
     # Save doc in .stp format
