@@ -16,7 +16,9 @@ from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDocStd import TDocStd_Document
 from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
 from OCC.Core.BinXCAFDrivers import binxcafdrivers_DefineFormat
+from OCC.Core.XmlXCAFDrivers import xmlxcafdrivers_DefineFormat
 from OCC.Core.IFSelect import IFSelect_RetDone
+from OCC.Core.Interface import Interface_Static
 from OCC.Core.STEPCAFControl import STEPCAFControl_Writer
 from OCC.Core.STEPControl import STEPControl_AsIs
 from OCC.Core.XSControl import XSControl_WorkSession
@@ -55,14 +57,19 @@ if __name__ == "__main__":
     app.Open(TCollection_ExtendedString(doc_file), doc)
 
     # Initialize STEP exporter
-    WS = XSControl_WorkSession()
-    step_writer = STEPCAFControl_Writer(WS, False)
+    writer = STEPCAFControl_Writer()
+
+    # To make subshape names work, the following static variable of OpenCascade
+    # must be turned on.
+    Interface_Static.SetIVal("write.stepcaf.subshapes.name", 1)
 
     # Transfer shapes
-    step_writer.Transfer(doc, STEPControl_AsIs)
+    if not writer.Transfer(doc, STEPControl_AsIs):
+        print("The document cannot be translated or gives no result")
+        app.Close(doc)
 
     # Write step file
-    write_status = step_writer.Write(step_file_name)
+    write_status = writer.Write(step_file_name)
     if write_status == IFSelect_RetDone:
         print(f"STEP file saved to {step_file_name}\n")
     else:

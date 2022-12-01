@@ -20,6 +20,7 @@ import os
 import os.path
 
 from OCC.Core.BinXCAFDrivers import binxcafdrivers_DefineFormat
+from OCC.Core.BRep import BRep_Builder
 from OCC.Core.XmlXCAFDrivers import xmlxcafdrivers_DefineFormat
 from OCC.Core.IFSelect import IFSelect_RetDone
 from OCC.Core.PCDM import PCDM_SS_OK
@@ -141,13 +142,13 @@ if __name__ == "__main__":
 
     # Create target shape & label, store in prototype dataclass
     target_shape = TopoDS_Compound()
-    t_builder = TopoDS_Builder()
+    t_builder = BRep_Builder()
     t_builder.MakeCompound(target_shape)
     target_proto = Prototype(target_shape, shape_tool.AddShape(target_shape, True))
 
     # Create root compound shape & label, store in prototype dataclass
     root_shape = TopoDS_Compound()
-    r_builder = TopoDS_Builder()
+    r_builder = BRep_Builder()
     r_builder.MakeCompound(root_shape)
     r_builder.Add(root_shape, target_proto.shape)
     root_proto = Prototype(root_shape, shape_tool.AddShape(root_shape, True))
@@ -177,9 +178,9 @@ if __name__ == "__main__":
     shape_tool.UpdateAssemblies()
 
     # Save composite step file
-    save_file_name = "/home/doug/Desktop/step/as1-under-top.stp"
+    save_file_name = "/home/doug/Desktop/step/as1-under-top-fixed.stp"
     save_step_doc(doc, save_file_name)
 
     # Save composite xml (or .xbf) file
-    save_file_name = "/home/doug/Desktop/step/as1-under-top.xml"
+    save_file_name = "/home/doug/Desktop/step/as1-under-top-fixed.xml"
     save_doc(doc, app, save_file_name)

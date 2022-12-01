@@ -1,7 +1,9 @@
 """
-Python version of:
+Started as a Python version of:
 How to export colored STEP file in OpenCASCADE
 https://techoverflow.net/2019/06/14/how-to-export-colored-step-files-in-opencascade/
+
+Now it's a playground for exploring
 """
 
 from OCC.Core.BinXCAFDrivers import binxcafdrivers_DefineFormat
