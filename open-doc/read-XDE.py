@@ -7,7 +7,6 @@ The goal of this file is to read a document stored in .xbf format
 then save the document in Step format.
 I can't get this working in python, although the C++ code works fine.
 
-The failure is at the very last line:
 RuntimeError: Standard_Failure cannot close a document that has not
 been opened raised from method Close of class TDocStd_Application
 """
@@ -48,7 +47,7 @@ def create_doc():
 
 if __name__ == "__main__":
 
-    doc_file = "../models/as1-oc-214.xbf"
+    doc_file = "/home/doug/Desktop/step/as1-oc-214.xbf"
     step_file_name = "/home/doug/Desktop/test-open-doc.stp"
 
     doc, app = create_doc()
