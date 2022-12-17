@@ -51,17 +51,17 @@ asm-xde-dfbrowse -model M
 * And by entering the following into the Draw command window:
 ```
 pload ALL
-Open C:/Users/doug/step_files/chassis.stp doc
-DFBrowse doc
+ReadStep D C:/Users/doug/step_files/chassis.stp
+DFBrowse D
 ```
 * We can get a side-by-side comparison of the two browsers:
 * Unfortunately, both browsers only work under Windows. Neither works under linux.
 * I think the AS browser seems a bit easier to read with its colored icons
-* On the other hand, it is occasionally useful to be able to read a document. Only Draw can do this.
+* On the other hand, it is occasionally useful to be able to read a document saved to file. Only Draw can do this.
 
 Analysis Situs: asm-xde-dfbrowse chassis.stp | Draw: DFBrowse chassis.stp
 ------------------- | ---------------------------
-![AS DFBrowse](imgs/as-dfbrowse-chassis.png) | ![Draw Browse](imgs/draw-browse-chassis.png)
+![AS DFBrowse](imgs/as-dfbrowse-chassis.png) | ![Draw Browse](imgs/draw-dfbrowse-chassis.png)
 
 # Both OpenCascade Draw and Analysis Situs provide tools for display of the assembly hierarchy as well
 
