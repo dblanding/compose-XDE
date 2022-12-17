@@ -46,7 +46,7 @@ DFBrowse doc
 ```
 asm-xde-new -model M
 asm-xde-load -model M -filename C:/Users/doug/step-files/chassis.stp
-asm-xde-browse -model M
+asm-xde-dfbrowse -model M
 ```
 * And by entering the following into the Draw command window:
 ```
@@ -61,7 +61,7 @@ DFBrowse doc
 
 Analysis Situs: asm-xde-dfbrowse chassis.stp | Draw: DFBrowse chassis.stp
 ------------------- | ---------------------------
-![AS DFBrowse](imgs/df-browse-chassis.png) | ![Draw Browse](images/draw-browse-chassis.png)
+![AS DFBrowse](imgs/as-dfbrowse-chassis.png) | ![Draw Browse](imgs/draw-browse-chassis.png)
 
 # Both OpenCascade Draw and Analysis Situs provide tools for display of the assembly hierarchy as well
 
